@@ -1,0 +1,40 @@
+import telebot
+from telebot import types
+
+API_TOKEN = 'ВСТАВЬ_СЮДА_СВОЙ_API_ТОКЕН'
+
+bot = telebot.TeleBot(API_TOKEN)
+
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    item1 = types.KeyboardButton("Купить Stars")
+    item2 = types.KeyboardButton("Связаться с поддержкой")
+    markup.add(item1, item2)
+    
+    bot.send_message(
+        message.chat.id,
+        "Привет! Добро пожаловать в магазин Telegram Stars!\nВыберите нужный пункт меню.",
+        reply_markup=markup
+    )
+
+@bot.message_handler(func=lambda msg: msg.text == "Купить Stars")
+def choose_amount(message):
+    bot.send_message(message.chat.id, "Введите количество Stars, которое хотите купить:")
+
+@bot.message_handler(func=lambda msg: msg.text.isdigit())
+def calculate_price(message):
+    stars = int(message.text)
+    price = round(stars * 0.012, 2)  # Примерная цена
+    bot.send_message(
+        message.chat.id,
+        f"Цена за {stars} Stars — примерно {price} TON.\nОтправьте оплату на TON-адрес:\n`EQD...`"
+    )
+
+@bot.message_handler(func=lambda msg: msg.text == "Связаться с поддержкой")
+def support(message):
+    bot.send_message(message.chat.id, "Напишите нашему администратору: @yourusername")
+
+# Запускаем бота
+print("Бот запущен...")
+bot.infinity_polling()
